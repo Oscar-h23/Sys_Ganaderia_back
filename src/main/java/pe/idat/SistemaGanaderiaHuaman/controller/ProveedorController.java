@@ -3,11 +3,11 @@ package pe.idat.SistemaGanaderiaHuaman.controller;
 import pe.idat.SistemaGanaderiaHuaman.model.Proveedor;
 import pe.idat.SistemaGanaderiaHuaman.service.ProveedorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/proveedores")
@@ -17,41 +17,82 @@ public class ProveedorController {
     @Autowired
     private ProveedorService proveedorService;
 
-    // Listar todos los proveedores
+    /**
+     * 📌 Listar proveedores con paginación.
+     *
+     * @param page Número de página (por defecto 0).
+     * @param size Tamaño de la página (por defecto 5).
+     * @return Página de proveedores.
+     */
     @GetMapping
-    public ResponseEntity<List<Proveedor>> listarProveedores() {
-        List<Proveedor> proveedores = proveedorService.findAll();
+    public ResponseEntity<Page<Proveedor>> listarProveedores(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Proveedor> proveedores = proveedorService.findAll(pageable);
+
         return ResponseEntity.ok(proveedores);
     }
 
-    // Buscar proveedor por ID
+    /**
+     * 📌 Buscar proveedor por ID.
+     *
+     * @param id ID del proveedor.
+     * @return Proveedor encontrado o `404 Not Found`.
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Proveedor> buscarProveedorPorId(@PathVariable Long id) {
         Proveedor proveedor = proveedorService.findById(id);
         return proveedor != null ? ResponseEntity.ok(proveedor) : ResponseEntity.notFound().build();
     }
 
-    //buscar por empresa
+    /**
+     * 📌 Buscar proveedores por empresa con paginación.
+     *
+     * @param empresa Nombre de la empresa a buscar.
+     * @param page Número de página.
+     * @param size Tamaño de la página.
+     * @return Página de proveedores encontrados.
+     */
     @GetMapping("/buscar")
-    public ResponseEntity<List<Proveedor>> buscarPorEmpresa(@RequestParam String empresa) {
-        List<Proveedor> proveedores = Collections.singletonList(proveedorService.findByEmpresa(empresa));
-        return proveedores.isEmpty() ?  ResponseEntity.notFound().build() : ResponseEntity.ok(proveedores);
+    public ResponseEntity<Page<Proveedor>> buscarPorEmpresa(
+            @RequestParam String empresa,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Proveedor> proveedores = proveedorService.findByEmpresa(empresa, pageable);
+
+        return proveedores.hasContent() ? ResponseEntity.ok(proveedores) : ResponseEntity.notFound().build();
     }
 
-    // Registrar proveedor (cambiado a /register para que coincida con el frontend)
+    /**
+     * 📌 Registrar un nuevo proveedor.
+     *
+     * @param proveedor Datos del proveedor a registrar.
+     * @return Proveedor registrado.
+     */
     @PostMapping("/register")
     public ResponseEntity<Proveedor> registrarProveedor(@RequestBody Proveedor proveedor) {
         Proveedor nuevoProveedor = proveedorService.save(proveedor);
         return ResponseEntity.ok(nuevoProveedor);
     }
 
-    // Actualizar proveedor
+    /**
+     * 📌 Actualizar un proveedor existente.
+     *
+     * @param id ID del proveedor a actualizar.
+     * @param proveedorActualizado Datos actualizados del proveedor.
+     * @return Proveedor actualizado o `404 Not Found`.
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Proveedor> actualizarProveedor(@PathVariable Long id, @RequestBody Proveedor proveedorActualizado) {
         Proveedor proveedor = proveedorService.findById(id);
         if (proveedor == null) {
             return ResponseEntity.notFound().build();
         }
+
         proveedor.setRuc(proveedorActualizado.getRuc());
         proveedor.setEmpresa(proveedorActualizado.getEmpresa());
         proveedor.setRepresentante(proveedorActualizado.getRepresentante());
@@ -63,7 +104,12 @@ public class ProveedorController {
         return ResponseEntity.ok(proveedorGuardado);
     }
 
-    // Eliminar proveedor
+    /**
+     * 📌 Eliminar un proveedor por ID.
+     *
+     * @param id ID del proveedor a eliminar.
+     * @return `204 No Content` si se eliminó correctamente o `404 Not Found` si no existe.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProveedor(@PathVariable Long id) {
         Proveedor proveedor = proveedorService.findById(id);

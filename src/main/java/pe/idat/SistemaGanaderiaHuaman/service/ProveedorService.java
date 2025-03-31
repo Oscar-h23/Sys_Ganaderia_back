@@ -1,12 +1,11 @@
 package pe.idat.SistemaGanaderiaHuaman.service;
 
-
-
 import pe.idat.SistemaGanaderiaHuaman.model.Proveedor;
 import pe.idat.SistemaGanaderiaHuaman.repository.ProveedorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
 
 @Service
 public class ProveedorService {
@@ -16,16 +15,17 @@ public class ProveedorService {
     private ProveedorRepository proveedorRepository;
 
     /**
-     * Retorna una lista con todos los proveedores.
+     * 📌 Retorna una lista paginada con todos los proveedores.
      *
-     * @return Lista de Proveedor.
+     * @param pageable Objeto para manejar la paginación.
+     * @return Página de Proveedores.
      */
-    public List<Proveedor> findAll() {
-        return proveedorRepository.findAll();
+    public Page<Proveedor> findAll(Pageable pageable) {
+        return proveedorRepository.findAll(pageable);
     }
 
     /**
-     * Busca un proveedor por su ID.
+     * 📌 Busca un proveedor por su ID.
      *
      * @param id Identificador del proveedor.
      * @return Proveedor si se encuentra, o null en caso contrario.
@@ -35,17 +35,18 @@ public class ProveedorService {
     }
 
     /**
-     * Busca un proveedor por el nombre de la empresa.
+     * 📌 Busca proveedores por el nombre de la empresa con paginación.
      *
      * @param empresa Nombre de la empresa.
-     * @return Proveedor si se encuentra, o null en caso contrario.
+     * @param pageable Objeto para manejar la paginación.
+     * @return Página de Proveedores encontrados.
      */
-    public Proveedor findByEmpresa(String empresa) {
-        return proveedorRepository.findByEmpresa(empresa).orElse(null);
+    public Page<Proveedor> findByEmpresa(String empresa, Pageable pageable) {
+        return proveedorRepository.findByEmpresaContainingIgnoreCase(empresa, pageable);
     }
 
     /**
-     * Guarda o actualiza un proveedor en la base de datos.
+     * 📌 Guarda o actualiza un proveedor en la base de datos.
      *
      * @param proveedor Objeto Proveedor a guardar.
      * @return Proveedor guardado.
@@ -55,7 +56,7 @@ public class ProveedorService {
     }
 
     /**
-     * Elimina un proveedor dado su ID.
+     * 📌 Elimina un proveedor dado su ID.
      *
      * @param id Identificador del proveedor a eliminar.
      */
