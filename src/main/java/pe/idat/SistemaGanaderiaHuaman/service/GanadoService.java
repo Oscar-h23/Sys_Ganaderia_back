@@ -29,8 +29,25 @@ public class GanadoService {
 
     // ✅ Obtener ganado por corral
     public List<Ganado> getGanadoByCorral(Long corralId) {
-        return ganadoRepository.findByCorralId(corralId);
+        List<Ganado> ganadoList = ganadoRepository.findByCorralId(corralId);
+
+        // 🔥 Actualiza la cantidad de animales en el corral
+        actualizarCantidadAnimales(corralId);
+
+        return ganadoList;
     }
+
+    // ✅ Método para actualizar la cantidad de animales en un corral
+    public void actualizarCantidadAnimales(Long corralId) {
+        Corral corral = corralRepository.findById(corralId).orElseThrow(
+                () -> new IllegalArgumentException("El corral con ID " + corralId + " no existe.")
+        );
+
+        int cantidad = ganadoRepository.countByCorralId(corralId); // ✅ Cuenta los ganados en el corral
+        corral.setCantidadAnimales(cantidad);
+        corralRepository.save(corral);
+    }
+
 
     // ✅ Obtener todos los ganados
     public List<Ganado> getGanados() {
