@@ -1,9 +1,12 @@
 package pe.idat.SistemaGanaderiaHuaman.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name = "proveedor")
@@ -43,4 +46,6 @@ public class Proveedor {
         this.correo = correo;
         this.estado = estado;
     }
+
+
 }

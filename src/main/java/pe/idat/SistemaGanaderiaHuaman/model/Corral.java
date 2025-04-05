@@ -9,6 +9,7 @@ import java.util.List;
 public class Corral {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_corral")
     private Long id;
 
     private String nombre;
